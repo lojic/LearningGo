@@ -56,6 +56,10 @@ func Parse[T any](day int, parser func(string) []T, sep string) [][]T {
   return Map(strings.Split(strings.Trim(string(content), " \t\n"), sep), parser)
 }
 
+func Words(text string) []string {
+  return regexp.MustCompile(`[a-zA-Z]+`).FindAllString(text, -1)
+}
+
 // --------------------------------------------------------------------------------------------
 // Private Functions
 // --------------------------------------------------------------------------------------------

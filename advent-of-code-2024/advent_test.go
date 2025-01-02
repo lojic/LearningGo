@@ -75,3 +75,14 @@ func TestParse(t *testing.T) {
 		t.Errorf("foo")
 	}
 }
+
+func TestWords(t *testing.T) {
+  result := Words("one, two...three MixedCase")
+  answer := []string{"one", "two", "three", "MixedCase"}
+
+	for i, word := range answer {
+		if result[i] != word {
+			t.Errorf("failed to parse words")
+		}
+	}
+}
