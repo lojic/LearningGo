@@ -1,9 +1,49 @@
 package main
 
-import ("strings")
+import (
+  "io"
+  "os"
+  "strings"
+)
 
-func memoizeCheckDesign(pats []string) func (string) int {
-  cache := make(map[string]int)
+type prefixSuffix struct {
+  prefix string
+  suffix string
+}
+
+func parse() ([]string, []string) {
+  ifs, err := os.Open("day19.txt")
+
+  if err != nil {
+    panic(err)
+  }
+
+  b, err := io.ReadAll(ifs)
+
+  if err != nil {
+    panic(err)
+  }
+
+  sections := strings.Split(string(b), "\n\n")
+  towels   := strings.Split(sections[0], ", ")
+  designs  := strings.Split(sections[1], "\n")
+
+  return towels, designs[:len(designs)-1] // Last one empty due to trailing \n in file
+}
+
+func prefixesSuffixes(design string, maxlen int) []prefixSuffix {
+  limit  := min(maxlen, len(design)) + 1
+  result := make([]prefixSuffix, limit-1)
+
+  for i, prefixlen := 0, 1; prefixlen < limit; i, prefixlen = i+1, prefixlen+1 {
+    result[i] = prefixSuffix{ prefix: design[0:prefixlen], suffix: design[prefixlen:] }
+  }
+
+  return result
+}
+
+func memoizeCheckDesign(towels map[string]bool, maxlen int) func (string) int {
+  cache := make(map[string]int,64)
   var checkDesign func (string) int
 
   checkDesign = func (design string) int {
@@ -11,42 +51,57 @@ func memoizeCheckDesign(pats []string) func (string) int {
       return result
     }
 
-    if design == "" {
-      return 1
+    arrangements := 0
+
+    if _, ok := towels[design]; ok {
+      arrangements = 1
     }
 
-    total := 0
-
-    for _, pat := range pats {
-      after, found := strings.CutPrefix(design, pat)
-
-      if found {
-        total += checkDesign(after)
+    for _, ps := range prefixesSuffixes(design, maxlen) {
+      if _, ok := towels[ps.prefix]; ok {
+        arrangements += checkDesign(ps.suffix)
       }
     }
 
-    cache[design] = total
-    return total
+    cache[design] = arrangements
+    return arrangements
   }
 
   return checkDesign
 }
 
-func main() {
-  results := Parse[string](19, Words, "\n\n")
-  pats    := results[0]
-  designs := results[1]
+func Solve() (int, int) {
+  pats, designs := parse()
+  towels := make(map[string]bool,500)
+  maxlen := 0
+
+  for _, towel := range pats {
+    l := len(towel)
+
+    if l > maxlen {
+      maxlen = l
+    }
+
+    towels[towel] = true
+  }
+
   part1   := 0
   part2   := 0
 
   for _, design := range designs {
-    cnt := memoizeCheckDesign(pats)(design)
+    cnt := memoizeCheckDesign(towels, maxlen)(design)
 
     if cnt > 0 {
       part1 += 1
       part2 += cnt
     }
   }
+
+  return part1, part2
+}
+
+func main() {
+  part1, part2 := Solve()
 
   if part1 != 353 {
     panic("Part 1 failed")
