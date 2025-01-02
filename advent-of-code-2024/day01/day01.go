@@ -1,6 +1,7 @@
 package main
 
 import (
+  "aoc/advent"
   "slices"
 )
 
@@ -11,7 +12,7 @@ func part1(left, right []int) int {
   total := 0
 
   for i, n1 := range left {
-    total += AbsInt(n1 - right[i])
+    total += advent.AbsInt(n1 - right[i])
   }
 
   return total
@@ -36,7 +37,7 @@ func part2(left, right []int) int {
 func main() {
   var left, right []int
 
-  for _, pair := range Parse[int](1, Ints, "\n") {
+  for _, pair := range advent.Parse[int](1, advent.Ints, "\n") {
     left = append(left, pair[0])
     right = append(right, pair[1])
   }
