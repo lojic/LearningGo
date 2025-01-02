@@ -87,9 +87,18 @@ func Solve() (int, int) {
 
   part1   := 0
   part2   := 0
+  workers := 0
+  ch      := make(chan int)
 
   for _, design := range designs {
-    cnt := memoizeCheckDesign(towels, maxlen)(design)
+    workers += 1
+    go func(design string) {
+      ch <- memoizeCheckDesign(towels, maxlen)(design)
+    }(design)
+  }
+
+  for i := 0; i < workers; i++ {
+    cnt := <-ch
 
     if cnt > 0 {
       part1 += 1
