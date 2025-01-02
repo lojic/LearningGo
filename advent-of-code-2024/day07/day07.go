@@ -50,13 +50,25 @@ func isValid(ops []func (int, int) int, answer, result int, operands []int) bool
 }
 
 func solve(operators ...func (int, int) int) int {
-  input := advent.Parse[int](7, advent.Ints, "\n")
-  total := 0
+  input   := advent.Parse[int](7, advent.Ints, "\n")
+  workers := 0
+  ch      := make(chan int)
 
   for _, lst := range input {
-    if isValid(operators, lst[0], lst[1], lst[2:]) {
-      total += lst[0]
-    }
+    workers += 1
+    go func(lst []int) {
+      if isValid(operators, lst[0], lst[1], lst[2:]) {
+        ch <- lst[0]
+      } else {
+        ch <- 0
+      }
+    }(lst)
+  }
+
+  total := 0
+
+  for i := 0; i < workers; i++ {
+    total += <-ch
   }
 
   return total
