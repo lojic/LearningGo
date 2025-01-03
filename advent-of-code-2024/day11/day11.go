@@ -5,7 +5,7 @@ import (
 )
 
 func memoizeBlink() func (int, int) int {
-  cache := make(map[[2]int]int)
+  cache := make(map[[2]int]int,1024)
   var blink func (int, int) int
 
   blink = func(stone, blinks int) int {
