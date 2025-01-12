@@ -14,14 +14,11 @@ func memoizeBlink() func (int, int) int {
     }
 
     if blinks == 0 {
-      cache[[2]int{stone,blinks}] = 1
       return 1
     }
 
     if stone == 0 {
-      val := blink(1, blinks - 1)
-      cache[[2]int{stone, blinks}] = val
-      return val
+      return blink(1, blinks - 1)
     }
 
     s    := strconv.Itoa(stone)
